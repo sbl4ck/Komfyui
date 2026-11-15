@@ -10,6 +10,14 @@ cd /d "%~dp0"
 set DEVICE=device-gfx1201
 set ROCM_INDEX=https://stable.repo.amd.com/rocm/whl-next/
 
+reg query "HKLM\SYSTEM\CurrentControlSet\Control\FileSystem" /v LongPathsEnabled 2>nul | find "0x1" >nul
+if errorlevel 1 (
+    echo Windows long path support is off and the ROCm packages need it. In an admin PowerShell run:
+    echo   New-ItemProperty -Path "HKLM:\SYSTEM\CurrentControlSet\Control\FileSystem" -Name LongPathsEnabled -Value 1 -PropertyType DWORD -Force
+    echo Then run this script again.
+    exit /b 1
+)
+
 call :find_python
 if not defined PYTHON (
     echo 64-bit Python 3.13 not found, installing it with winget...
